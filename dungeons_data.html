@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dungeons Data</title>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0f18;
+  --surface: #12172a;
+  --surface2: #1a2038;
+  --surface3: #222842;
+  --border: #2a3356;
+  --text: #c8d4e8;
+  --text-dim: #6a7a9a;
+  --text-faint: #3a4a6a;
+  --gold: #c8a453;
+  --gold-light: #e8c474;
+  --green: #48a870;
+  --orange: #d88040;
+  --red: #c84050;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+.page-header {
+  background: linear-gradient(135deg, #0c0f18 0%, #14192e 60%, #0c0f18 100%);
+  border-bottom: 2px solid var(--gold);
+  padding: 18px 24px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.page-title {
+  font-family: 'Exo 2', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--gold-light);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+.page-subtitle {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* ── Zone tabs (outer) ── */
+.zone-tabs {
+  display: flex;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.zone-tabs::-webkit-scrollbar { display: none; }
+.zone-tab {
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding: 14px 22px;
+  color: var(--text-dim);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+  transition: color .15s, border-color .15s, background .15s;
+  user-select: none;
+  flex-shrink: 0;
+}
+.zone-tab:hover { color: var(--text); background: var(--surface2); }
+.zone-tab.active { color: var(--gold-light); border-bottom-color: var(--gold); background: var(--surface2); }
+
+/* ── Zone panels ── */
+.zone-panel { display: none; }
+.zone-panel.active { display: block; }
+
+/* ── Difficulty tabs (inner) ── */
+.diff-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  padding: 14px 16px 0;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.diff-tab {
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 8px 18px;
+  color: var(--text-dim);
+  cursor: pointer;
+  border-radius: 6px 6px 0 0;
+  border: 1px solid transparent;
+  border-bottom: none;
+  transition: color .15s, background .15s;
+  user-select: none;
+  white-space: nowrap;
+}
+.diff-tab:hover { color: var(--text); background: rgba(255,255,255,.04); }
+.diff-tab.active {
+  background: var(--surface);
+  border-color: var(--border);
+  border-bottom-color: var(--surface);
+  margin-bottom: -1px;
+}
+.diff-tab.active.n { color: #5abf82; }
+.diff-tab.active.h { color: #e09040; }
+.diff-tab.active.e { color: #e05060; }
+.diff-tab.active.v { color: var(--gold-light); }
+.diff-tab.active.r { color: #9080d8; }
+
+/* ── Diff panels ── */
+.diff-panel { display: none; padding: 18px 16px 24px; }
+.diff-panel.active { display: block; }
+
+/* ── Drop table ── */
+.drop-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 520px;
+}
+.drop-wrap { overflow-x: auto; }
+.drop-table thead tr {
+  background: var(--surface3);
+  border-bottom: 2px solid var(--border);
+}
+.drop-table thead th {
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 700;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-dim);
+  padding: 9px 14px;
+  text-align: left;
+  white-space: nowrap;
+}
+.drop-table thead th.c { text-align: center; }
+.drop-table tbody tr { border-bottom: 1px solid rgba(42,51,86,.7); transition: background .1s; }
+.drop-table tbody tr:last-child { border-bottom: none; }
+.drop-table tbody tr:hover { background: rgba(255,255,255,.02); }
+.drop-table td { padding: 9px 14px; vertical-align: top; }
+.drop-table td.c { text-align: center; }
+
+/* ── Category badge ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 4px;
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 700;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  white-space: nowrap;
+  border: 1px solid;
+}
+.b-gold    { background: rgba(245,200,66,.1);  color: #f0c060; border-color: rgba(245,200,66,.25); }
+.b-mat     { background: rgba(100,160,220,.1); color: #7ab8e0; border-color: rgba(100,160,220,.25); }
+.b-comp    { background: rgba(80,190,130,.1);  color: #60c890; border-color: rgba(80,190,130,.25); }
+.b-core    { background: rgba(160,120,220,.1); color: #b090e0; border-color: rgba(160,120,220,.25); }
+.b-power   { background: rgba(220,100,160,.1); color: #d880b0; border-color: rgba(220,100,160,.25); }
+.b-food    { background: rgba(220,165,80,.1);  color: #d8a860; border-color: rgba(220,165,80,.25); }
+.b-potion  { background: rgba(80,200,220,.1);  color: #60c8d8; border-color: rgba(80,200,220,.25); }
+.b-gear    { background: rgba(220,70,90,.1);   color: #e06070; border-color: rgba(220,70,90,.25); }
+.b-recipe  { background: rgba(100,200,100,.1); color: #80c880; border-color: rgba(100,200,100,.25); }
+.b-refresh { background: rgba(90,120,220,.1);  color: #7090e0; border-color: rgba(90,120,220,.25); }
+.b-essence { background: rgba(140,210,190,.1); color: #90d0c0; border-color: rgba(140,210,190,.25); }
+.b-bonus   { background: rgba(210,190,80,.1);  color: #d0c860; border-color: rgba(210,190,80,.25); }
+.b-upgrade { background: rgba(200,90,130,.1);  color: #c06090; border-color: rgba(200,90,130,.25); }
+.b-lunar   { background: rgba(190,150,255,.1); color: #c0a0ff; border-color: rgba(190,150,255,.25); }
+
+/* ── Table pct ── */
+.tpct {
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  white-space: nowrap;
+  color: var(--text-dim);
+}
+.tpct.always { color: #f0c060; }
+.tpct.high   { color: #5abf82; }
+.tpct.med    { color: var(--text-dim); }
+.tpct.low    { color: #b05060; }
+
+/* ── Item list ── */
+.ilist { display: flex; flex-direction: column; gap: 3px; }
+.irow  { display: flex; align-items: baseline; gap: 8px; line-height: 1.4; }
+.iname { color: var(--text); flex: 1; min-width: 140px; }
+.iqty  { color: var(--text-dim); font-size: 11px; white-space: nowrap; }
+.ipct  { color: var(--text-dim); font-size: 11px; white-space: nowrap; min-width: 52px; text-align: right; font-family: 'Exo 2', sans-serif; font-weight: 600; }
+.ipct.hot  { color: #5abf82; }
+.ipct.warm { color: #c8a453; }
+.ipct.cool { color: var(--text-dim); }
+.ipct.cold { color: #905060; }
+
+/* ── Section note ── */
+.sect-note {
+  font-size: 11px;
+  color: var(--text-dim);
+  background: var(--surface3);
+  border-left: 3px solid var(--border);
+  padding: 8px 14px;
+  margin-bottom: 14px;
+  border-radius: 0 6px 6px 0;
+  font-style: italic;
+}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <div class="page-title">⚔ Dungeons Data</div>
+    <div class="page-subtitle">Chest drop tables by zone &amp; difficulty</div>
+  </div>
+</div>
+
+<div class="zone-tabs" id="zoneTabs">
+  <div class="zone-tab active" data-zone="vildera">Vildera</div>
+  <div class="zone-tab" data-zone="eastern">Eastern Reach</div>
+  <div class="zone-tab" data-zone="everdune">Everdune</div>
+  <div class="zone-tab" data-zone="farpoint">Farpoint Rift</div>
+  <div class="zone-tab" data-zone="mob">Mob Drops</div>
+  <div class="zone-tab" data-zone="raid">Raid Dungeons</div>
+  <div class="zone-tab" data-zone="limited">Limited Drops</div>
+</div>
+
+<div id="content"></div>
+
+<script>
+// ── helpers ──────────────────────────────────────────────────
+function pctClass(p) {
+  const v = parseFloat(p);
+  if (v >= 50) return 'hot';
+  if (v >= 15) return 'warm';
+  if (v >= 5)  return 'cool';
+  return 'cold';
+}
+function tpctClass(p) {
+  if (!p || p === '—') return 'med';
+  const v = parseFloat(p);
+  if (v >= 100) return 'always';
+  if (v >= 50)  return 'high';
+  if (v >= 20)  return 'med';
+  return 'low';
+}
+function renderTable(groups) {
+  const rows = groups.map(g => {
+    const items = g.items.map(i => `
+      <div class="irow">
+        <span class="iname">${i.name}</span>
+        <span class="iqty">${i.qty ? '×'+i.qty : ''}</span>
+        <span class="ipct ${pctClass(i.pct)}">${i.pct}</span>
+      </div>`).join('');
+    return `<tr>
+      <td style="width:130px"><span class="badge ${g.cls}">${g.cat}</span></td>
+      <td class="c" style="width:72px"><span class="tpct ${tpctClass(g.tpct)}">${g.tpct||'—'}</span></td>
+      <td><div class="ilist">${items}</div></td>
+    </tr>`;
+  }).join('');
+  return `<div class="drop-wrap"><table class="drop-table">
+    <thead><tr>
+      <th>Category</th><th class="c">Table %</th><th>Item · Qty · Item %</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+function zone(id, panels, note) {
+  const tabs = panels.map((p,i)=>`<div class="diff-tab ${p.cls||'v'}${i===0?' active':''}" data-zone="${id}" data-diff="${p.key}">${p.label}</div>`).join('');
+  const pnls = panels.map((p,i)=>`<div class="diff-panel${i===0?' active':''}" id="${id}-${p.key}">${p.note?`<p class="sect-note">${p.note}</p>`:''}${renderTable(p.data)}</div>`).join('');
+  return `<div class="diff-bar" data-zone="${id}">${tabs}</div>${pnls}`;
+}
+
+// ── shared drop groups ────────────────────────────────────────
+const G = {
+  gold100:   {cat:'Gold',        cls:'b-gold',    tpct:'100%', items:[{name:'Gold',qty:'10',pct:'20%'},{name:'Gold',qty:'20',pct:'20%'},{name:'Gold',qty:'30',pct:'20%'},{name:'Gold',qty:'40',pct:'20%'},{name:'Gold',qty:'50',pct:'20%'}]},
+  gold50:    {cat:'Gold',        cls:'b-gold',    tpct:'50%',  items:[{name:'Gold',qty:'10',pct:'10%'},{name:'Gold',qty:'20',pct:'10%'},{name:'Gold',qty:'30',pct:'10%'},{name:'Gold',qty:'40',pct:'10%'},{name:'Gold',qty:'50',pct:'10%'}]},
+  gold75a:   {cat:'Gold',        cls:'b-gold',    tpct:'75%',  items:[{name:'Gold',qty:'10',pct:'10%'},{name:'Gold',qty:'20',pct:'10%'},{name:'Gold',qty:'30',pct:'10%'},{name:'Gold',qty:'40',pct:'10%'},{name:'Gold',qty:'50',pct:'10%'}]},
+  gold75b:   {cat:'Gold',        cls:'b-gold',    tpct:'75%',  items:[{name:'Gold',qty:'10',pct:'15%'},{name:'Gold',qty:'20',pct:'15%'},{name:'Gold',qty:'30',pct:'15%'},{name:'Gold',qty:'40',pct:'15%'},{name:'Gold',qty:'50',pct:'15%'}]},
+  gold100b:  {cat:'Gold',        cls:'b-gold',    tpct:'100%', items:[{name:'Gold',qty:'10',pct:'20%'},{name:'Gold',qty:'20',pct:'20%'},{name:'Gold',qty:'30',pct:'20%'},{name:'Gold',qty:'40',pct:'20%'},{name:'Gold',qty:'50',pct:'20%'}]},
+
+  matBasic:  {cat:'Material',    cls:'b-mat',     tpct:'100%', items:[{name:'Bolt',qty:'2',pct:'30%'},{name:'Frayed Wires',qty:'2',pct:'30%'},{name:'Synth-Fluid',qty:'2',pct:'20%'},{name:'Aluminium Scrap',qty:'2',pct:'20%'}]},
+  matHard:   {cat:'Material',    cls:'b-mat',     tpct:'100%', items:[{name:'Yokulite',qty:'2',pct:'16.667%'},{name:'CopperCore',qty:'2',pct:'16.667%'},{name:'Starweave Fabric',qty:'1',pct:'8.333%'},{name:'Silentium Sheets',qty:'1',pct:'8.333%'}]},
+  matHardED: {cat:'Material',    cls:'b-mat',     tpct:'100%', items:[{name:'Yokulite',qty:'2',pct:'20%'},{name:'CopperCore',qty:'2',pct:'20%'},{name:'Starweave Fabric',qty:'1',pct:'10%'},{name:'Silentium Sheets',qty:'1',pct:'10%'}]},
+  matHardFP: {cat:'Material',    cls:'b-mat',     tpct:'75%',  items:[{name:'Yokulite',qty:'2',pct:'25%'},{name:'CopperCore',qty:'2',pct:'25%'},{name:'Starweave Fabric',qty:'1',pct:'12.5%'},{name:'Silentium Sheets',qty:'1',pct:'12.5%'}]},
+  matEx:     {cat:'Material',    cls:'b-mat',     tpct:'10%',  items:[{name:'Darkhide',qty:'1',pct:'2.857%'},{name:'Tormented Horn',qty:'1',pct:'2.857%'},{name:'Bones',qty:'1',pct:'1.429%'},{name:'Tortured Bones',qty:'1',pct:'1.429%'},{name:'Skull',qty:'1',pct:'1.429%'}]},
+  matEx2:    {cat:'Material',    cls:'b-mat',     tpct:'100%', items:[{name:'Flare',qty:'1',pct:'25%'},{name:'Demon Eye',qty:'1',pct:'25%'},{name:'Essence Of Regret',qty:'1',pct:'25%'},{name:'CO2 Canister',qty:'1',pct:'25%'}]},
+
+  compBasic: {cat:'Component',   cls:'b-comp',    tpct:'50%',  items:[{name:'Cloth',qty:'3',pct:'10.714%'},{name:'Starmesh',qty:'2',pct:'14.286%'},{name:'Neuron Fibre Coating',qty:'2',pct:'10.714%'},{name:'Aluminium Sheets',qty:'2',pct:'7.143%'},{name:'Sunmetal',qty:'2',pct:'7.143%'}]},
+  compED60:  {cat:'Component',   cls:'b-comp',    tpct:'60%',  items:[{name:'Cloth',qty:'3',pct:'12.857%'},{name:'Starmesh',qty:'2',pct:'17.143%'},{name:'Neuron Fibre Coating',qty:'2',pct:'12.857%'},{name:'Aluminium Sheets',qty:'2',pct:'8.571%'},{name:'Sunmetal',qty:'2',pct:'8.571%'}]},
+  compFP75:  {cat:'Component',   cls:'b-comp',    tpct:'75%',  items:[{name:'Cloth',qty:'3',pct:'16.071%'},{name:'Starmesh',qty:'2',pct:'21.429%'},{name:'Neuron Fibre Coating',qty:'2',pct:'16.071%'},{name:'Aluminium Sheets',qty:'2',pct:'10.714%'},{name:'Sunmetal',qty:'2',pct:'10.714%'}]},
+  compHard:  {cat:'Component',   cls:'b-comp',    tpct:'50%',  items:[{name:'Yoku Shard',qty:'1',pct:'25%'},{name:'Nebulite',qty:'1',pct:'25%'},{name:'Eclipsilk',qty:'1',pct:'50%'}]},
+  compHardED:{cat:'Component',   cls:'b-comp',    tpct:'60%',  items:[{name:'Yoku Shard',qty:'1',pct:'25%'},{name:'Nebulite',qty:'1',pct:'25%'},{name:'Eclipsilk',qty:'1',pct:'50%'}]},
+  compHardFP:{cat:'Component',   cls:'b-comp',    tpct:'100%', items:[{name:'Yoku Shard',qty:'1',pct:'25%'},{name:'Nebulite',qty:'1',pct:'25%'},{name:'Eclipsilk',qty:'1',pct:'50%'}]},
+  compEx:    {cat:'Component',   cls:'b-comp',    tpct:'50%',  items:[{name:'Ferrox',qty:'1',pct:'16.667%'},{name:'Darkfibre',qty:'1',pct:'16.667%'},{name:'Lost Soul Essence',qty:'1',pct:'16.667%'}]},
+
+  cfBasic:   {cat:'Core Fragment',cls:'b-core',   tpct:'25%',  items:[{name:'Weapon Core Fragment',qty:'3',pct:'9.375%'},{name:'Weapon Core Fragment',qty:'5',pct:'3.125%'},{name:'Ability Core Fragment',qty:'3',pct:'9.375%'},{name:'Ability Core Fragment',qty:'5',pct:'3.125%'}]},
+  cfH1_20:   {cat:'Core Fragment',cls:'b-core',   tpct:'20%',  items:[{name:'Weapon Core Fragment',qty:'3',pct:'7.5%'},{name:'Weapon Core Fragment',qty:'5',pct:'2.5%'},{name:'Ability Core Fragment',qty:'3',pct:'7.5%'},{name:'Ability Core Fragment',qty:'5',pct:'2.5%'}]},
+  cfH2_20:   {cat:'Core Fragment',cls:'b-core',   tpct:'20%',  items:[{name:'Weapon Core Fragment',qty:'4',pct:'9.091%'},{name:'Weapon Core Fragment',qty:'6',pct:'5.455%'},{name:'Weapon Core Shard',qty:'1',pct:'3.636%'},{name:'Weapon Core Shard',qty:'2',pct:'1.818%'}]},
+  cfH3_20:   {cat:'Core Fragment',cls:'b-core',   tpct:'20%',  items:[{name:'Ability Core Fragment',qty:'4',pct:'9.091%'},{name:'Ability Core Fragment',qty:'6',pct:'5.455%'},{name:'Ability Core Shard',qty:'1',pct:'3.636%'},{name:'Ability Core Shard',qty:'2',pct:'1.818%'}]},
+  cfFPH2:    {cat:'Core Fragment',cls:'b-core',   tpct:'20%',  items:[{name:'Weapon Core Fragment',qty:'4',pct:'9.10%'},{name:'Weapon Core Fragment',qty:'6',pct:'5.50%'},{name:'Weapon Core Shard',qty:'1',pct:'3.64%'},{name:'Weapon Core Shard',qty:'2',pct:'1.82%'}]},
+  cfFPH3:    {cat:'Core Fragment',cls:'b-core',   tpct:'20%',  items:[{name:'Ability Core Fragment',qty:'4',pct:'9.10%'},{name:'Ability Core Fragment',qty:'6',pct:'5.50%'},{name:'Ability Core Shard',qty:'1',pct:'3.64%'},{name:'Ability Core Shard',qty:'2',pct:'1.82%'}]},
+  cfE1:      {cat:'Core Fragment',cls:'b-core',   tpct:'25%',  items:[{name:'Weapon Core Fragment',qty:'3',pct:'9.375%'},{name:'Weapon Core Fragment',qty:'5',pct:'3.125%'},{name:'Ability Core Fragment',qty:'3',pct:'9.375%'},{name:'Ability Core Fragment',qty:'5',pct:'3.125%'}]},
+  cfE2:      {cat:'Core Fragment',cls:'b-core',   tpct:'25%',  items:[{name:'Weapon Core Fragment',qty:'4',pct:'11.364%'},{name:'Weapon Core Fragment',qty:'6',pct:'6.818%'},{name:'Weapon Core Shard',qty:'1',pct:'4.545%'},{name:'Weapon Core Shard',qty:'2',pct:'2.273%'}]},
+  cfE3:      {cat:'Core Fragment',cls:'b-core',   tpct:'25%',  items:[{name:'Ability Core Fragment',qty:'4',pct:'11.364%'},{name:'Ability Core Fragment',qty:'6',pct:'6.818%'},{name:'Ability Core Shard',qty:'1',pct:'4.545%'},{name:'Ability Core Shard',qty:'2',pct:'2.273%'}]},
+  cfED_H1:   {cat:'Core Fragment',cls:'b-core',   tpct:'25%',  items:[{name:'Weapon Core Fragment',qty:'4',pct:'11.364%'},{name:'Weapon Core Fragment',qty:'6',pct:'6.818%'},{name:'Weapon Core Shard',qty:'1',pct:'4.545%'},{name:'Weapon Core Shard',qty:'2',pct:'2.273%'}]},
+  cfED_H2:   {cat:'Core Fragment',cls:'b-core',   tpct:'25%',  items:[{name:'Ability Core Fragment',qty:'4',pct:'11.364%'},{name:'Ability Core Fragment',qty:'6',pct:'6.818%'},{name:'Ability Core Shard',qty:'1',pct:'4.545%'},{name:'Ability Core Shard',qty:'2',pct:'2.273%'}]},
+
+  pcBasic:   {cat:'Power Core',  cls:'b-power',   tpct:'25%',  items:[{name:'Core Residue',qty:'5',pct:'13.889%'},{name:'Core Residue',qty:'10',pct:'8.333%'},{name:'Core Residue',qty:'15',pct:'2.778%'},{name:'Uncommon Ability Power Core',qty:'5',pct:'25%'},{name:'Uncommon Weapon Power Core',qty:'5',pct:'25%'}]},
+  pcHard:    {cat:'Power Core',  cls:'b-power',   tpct:'20%',  items:[{name:'Core Residue',qty:'5',pct:'11.111%'},{name:'Core Residue',qty:'10',pct:'6.667%'},{name:'Core Residue',qty:'15',pct:'2.222%'},{name:'Uncommon Ability Power Core',qty:'5',pct:'20%'},{name:'Uncommon Weapon Power Core',qty:'5',pct:'20%'}]},
+  pcFPH:     {cat:'Power Core',  cls:'b-power',   tpct:'—',    items:[{name:'Core Residue',qty:'5',pct:'11.11%'},{name:'Core Residue',qty:'10',pct:'6.67%'},{name:'Core Residue',qty:'15',pct:'2.22%'},{name:'Uncommon Ability Power Core',qty:'5',pct:'20%'},{name:'Uncommon Weapon Power Core',qty:'5',pct:'20%'}]},
+
+  foodArena: {cat:'Food',        cls:'b-food',    tpct:'25%',  items:[{name:'Mapo Tofu',qty:'3',pct:'8.333%'},{name:'Ratatouille',qty:'3',pct:'8.333%'},{name:'Pizza',qty:'3',pct:'8.333%'}]},
+  foodBasic: {cat:'Food',        cls:'b-food',    tpct:'25%',  items:[{name:'Porridge',qty:'1',pct:'8.333%'},{name:'Bread',qty:'1',pct:'8.333%'},{name:'Pizza',qty:'1',pct:'8.333%'}]},
+
+  pot25:     {cat:'Potion',      cls:'b-potion',  tpct:'25%',  items:[{name:'Health Vial',qty:'2',pct:'6.25%'},{name:'Damage Vial',qty:'2',pct:'6.25%'},{name:'Dodge Vial',qty:'2',pct:'6.25%'},{name:'Speed Vial',qty:'2',pct:'6.25%'}]},
+  pot20:     {cat:'Potion',      cls:'b-potion',  tpct:'20%',  items:[{name:'Health Vial',qty:'2',pct:'5%'},{name:'Damage Vial',qty:'2',pct:'5%'},{name:'Dodge Vial',qty:'2',pct:'5%'},{name:'Speed Vial',qty:'2',pct:'5%'}]},
+
+  gearVildera:{cat:'Gear',       cls:'b-gear',    tpct:'10%',  items:[{name:'Brutal Axe'},{name:'Steel Helm'},{name:'Steel Greaves'},{name:'Steel Chestplate'},{name:'Leather Tunic'},{name:'Leather Boots'},{name:'Chainsaw'},{name:'Crooked Bat'}].map(i=>({...i,qty:'1',pct:'1.25%'}))},
+  gearERN:   {cat:'Gear',        cls:'b-gear',    tpct:'15%',  items:[{name:'Brutal Axe'},{name:'Steel Helm'},{name:'Steel Greaves'},{name:'Steel Chestplate'},{name:'Leather Tunic'},{name:'Leather Boots'},{name:'Chainsaw'},{name:'Crooked Bat'}].map(i=>({...i,qty:'1',pct:'1.88%'}))},
+  gearEDN:   {cat:'Gear',        cls:'b-gear',    tpct:'15%',  items:[{name:'Duneblade',qty:'1',pct:'3.75%'},{name:"Forgotten Adventurer's Vest",qty:'1',pct:'3.75%'},{name:'Thick Greenhide Leggings',qty:'1',pct:'3.75%'},{name:'High-Performance Headgear',qty:'1',pct:'3.75%'}]},
+  gearFPN:   {cat:'Gear',        cls:'b-gear',    tpct:'15%',  items:[{name:'Neuro Coated Vest',qty:'1',pct:'3.75%'},{name:'Yoku Infused Shorts',qty:'1',pct:'3.75%'},{name:'Scorched Headgear',qty:'1',pct:'3.75%'},{name:'Riftcarver',qty:'1',pct:'3.75%'}]},
+  gearHard:  {cat:'Gear',        cls:'b-gear',    tpct:'15%',  items:[{name:'Strengthened Sand Hood',qty:'1',pct:'3.75%'},{name:'Arcanetex Threaded Jacket',qty:'1',pct:'3.75%'},{name:'Mallet of Mayhem',qty:'1',pct:'3.75%'},{name:'Grey Power Trousers',qty:'1',pct:'3.75%'}]},
+  gearEx:    {cat:'Gear',        cls:'b-gear',    tpct:'15%',  items:[{name:'Red Power Trousers',qty:'1',pct:'3.75%'},{name:'Nebulite Infused Cloak',qty:'1',pct:'3.75%'},{name:'Steel Faceguard',qty:'1',pct:'3.75%'},{name:'Mighty Cleaver',qty:'1',pct:'3.75%'}]},
+
+  refN:      {cat:'Refresher',   cls:'b-refresh', tpct:'80%',  items:[{name:'Upgrade Refresher',qty:'1',pct:'80%'},{name:'Upgrade Refresher',qty:'1',pct:'24%'}]},
+  refH:      {cat:'Refresher',   cls:'b-refresh', tpct:'80%',  items:[{name:'Refresher Token',qty:'1',pct:'48%'},{name:'Upgrade Refresher Abilities',qty:'1',pct:'16%'},{name:'Upgrade Refresher Passives',qty:'1',pct:'16%'}]},
+  refE:      {cat:'Refresher',   cls:'b-refresh', tpct:'85%',  items:[{name:'Refresher Token',qty:'1',pct:'28.333%'},{name:'Upgrade Refresher Abilities',qty:'1',pct:'28.333%'},{name:'Upgrade Refresher Passives',qty:'1',pct:'28.333%'}]},
+
+  recHard:   {cat:'Gear Recipes',cls:'b-recipe',  tpct:'5%',   items:[{name:'Sword Cursed Rapier',qty:'1',pct:'0.238%'},{name:'Fiery Jackhammer',qty:'1',pct:'0.238%'},{name:'Eclipse',qty:'1',pct:'0.238%'},{name:'Obsidian Head',qty:'1',pct:'0.476%'},{name:'Obsidian Feet',qty:'1',pct:'0.476%'},{name:'Obsidian Chest',qty:'1',pct:'0.476%'},{name:'Obsidian Cloak',qty:'1',pct:'0.714%'},{name:'Silentium Head',qty:'1',pct:'0.476%'},{name:'Silentium Feet',qty:'1',pct:'0.476%'},{name:'Silentium Chest',qty:'1',pct:'0.476%'},{name:'Starweave Head',qty:'1',pct:'0.238%'},{name:'Starweave Feet',qty:'1',pct:'0.238%'},{name:'Starweave Chest',qty:'1',pct:'0.238%'}]},
+  recHardED: {cat:'Gear Recipes',cls:'b-recipe',  tpct:'7%',   items:[{name:'Sword Cursed Rapier',qty:'1',pct:'0.333%'},{name:'Fiery Jackhammer',qty:'1',pct:'0.333%'},{name:'Eclipse',qty:'1',pct:'0.333%'},{name:'Obsidian Head',qty:'1',pct:'0.667%'},{name:'Obsidian Feet',qty:'1',pct:'0.667%'},{name:'Obsidian Chest',qty:'1',pct:'0.667%'},{name:'Obsidian Cloak',qty:'1',pct:'1%'},{name:'Silentium Head',qty:'1',pct:'0.667%'},{name:'Silentium Feet',qty:'1',pct:'0.667%'},{name:'Silentium Chest',qty:'1',pct:'0.667%'},{name:'Starweave Head',qty:'1',pct:'0.333%'},{name:'Starweave Feet',qty:'1',pct:'0.333%'},{name:'Starweave Chest',qty:'1',pct:'0.333%'}]},
+  recHardFP: {cat:'Gear Recipes',cls:'b-recipe',  tpct:'9%',   items:[{name:'Sword Cursed Rapier',qty:'1',pct:'0.43%'},{name:'Fiery Jackhammer',qty:'1',pct:'0.43%'},{name:'Eclipse',qty:'1',pct:'0.43%'},{name:'Obsidian Head',qty:'1',pct:'0.86%'},{name:'Obsidian Feet',qty:'1',pct:'0.86%'},{name:'Obsidian Chest',qty:'1',pct:'0.86%'},{name:'Obsidian Cloak',qty:'1',pct:'1.29%'},{name:'Silentium Head',qty:'1',pct:'0.86%'},{name:'Silentium Feet',qty:'1',pct:'0.86%'},{name:'Silentium Chest',qty:'1',pct:'0.86%'},{name:'Starweave Head',qty:'1',pct:'0.43%'},{name:'Starweave Feet',qty:'1',pct:'0.43%'},{name:'Starweave Chest',qty:'1',pct:'0.43%'}]},
+  recHardCraft:{cat:'Recipes',   cls:'b-recipe',  tpct:'5%',   items:[{name:'Chronosteel',qty:'1',pct:'0.667%'},{name:'Silentium',qty:'1',pct:'0.667%'},{name:'Obsidian Plates',qty:'1',pct:'0.667%'},{name:'Ferrox',qty:'1',pct:'0.667%'},{name:'Thornweave',qty:'1',pct:'0.667%'},{name:'Starweave',qty:'1',pct:'0.667%'},{name:'Mapo Tofu',qty:'1',pct:'0.333%'},{name:'Pizza',qty:'1',pct:'0.333%'},{name:'Fish Stick',qty:'1',pct:'0.333%'}]},
+  recHardCraftED:{cat:'Recipes', cls:'b-recipe',  tpct:'7%',   items:[{name:'Chronosteel',qty:'1',pct:'0.933%'},{name:'Silentium',qty:'1',pct:'0.933%'},{name:'Obsidian Plates',qty:'1',pct:'0.933%'},{name:'Ferrox',qty:'1',pct:'0.933%'},{name:'Thornweave',qty:'1',pct:'0.933%'},{name:'Starweave',qty:'1',pct:'0.933%'},{name:'Mapo Tofu',qty:'1',pct:'0.467%'},{name:'Pizza',qty:'1',pct:'0.467%'},{name:'Fish Stick',qty:'1',pct:'0.467%'}]},
+  recHardCraftFP:{cat:'Recipes', cls:'b-recipe',  tpct:'9%',   items:[{name:'Chronosteel',qty:'1',pct:'1.20%'},{name:'Silentium',qty:'1',pct:'1.20%'},{name:'Obsidian Plates',qty:'1',pct:'1.20%'},{name:'Ferrox',qty:'1',pct:'1.20%'},{name:'Thornweave',qty:'1',pct:'1.20%'},{name:'Starweave',qty:'1',pct:'1.20%'},{name:'Mapo Tofu',qty:'1',pct:'0.60%'},{name:'Pizza',qty:'1',pct:'0.60%'},{name:'Fish Stick',qty:'1',pct:'0.60%'}]},
+  recEx10:   {cat:'Gear Recipes',cls:'b-recipe',  tpct:'10%',  items:[{name:"Soul Hunter's Birches"},{name:"Soul Hunter's Helm"},{name:"Soul Hunter's Spine"},{name:"Soul Hunter's Mantle"},{name:'Legs of the Lost Soul'},{name:'Cloak for a Tormented Soul'},{name:'Toxic Messenger'},{name:'Tormented Horns'},{name:'Harbinger of the Foundation'},{name:'Obsidian Cloak'}].map(i=>({...i,qty:'1',pct:'1%'}))},
+  recEx5:    {cat:'Gear Recipes',cls:'b-recipe',  tpct:'5%',   items:[{name:'Oasis Twinblade'},{name:'Oasis Warhammer'},{name:'Drakkar'},{name:'Ferrox Plate Chest'},{name:'Ferrox Plate Legs'},{name:'Thornweave Hood'},{name:'Thornweave Shroud'},{name:'Thornweave Boots'}].map(i=>({...i,qty:'1',pct:'0.625%'}))},
+  recExCraft:{cat:'Recipes',     cls:'b-recipe',  tpct:'5%',   items:[{name:'Cookie Dough Gelato'},{name:'Raspberry Gelato'},{name:'Cheese Cake'},{name:'Coq Au Vin'},{name:'Sashimi'},{name:'Beef Burger'},{name:'Watermelon Smoothie'},{name:'Raspberry Smoothie'},{name:'Strawberry Smoothie'},{name:'Fish Soup'},{name:'Cup of Tea'},{name:'Aubergine Bake'},{name:'Watermelon Gelato'},{name:'Raspberry Cake'},{name:'Cooldown Flask'},{name:'Dodge Stim'},{name:'Damage Stim'},{name:'Crit Stim'},{name:'Cooldown Stim'},{name:'Berserker Stim'},{name:'Hyper-Concentration Stim'},{name:'Glory Stim'},{name:'Ironclad Stim'},{name:"Phantom's Elixir"},{name:"Sage's Elixir"},{name:"Titan's Elixir"},{name:"Warlord's Elixir"},{name:'Darkfibre'},{name:'Lost Soul Essence'},{name:'Chronosteel',pct:'0.455%'}].map((i,idx)=>({...i,qty:'1',pct:i.pct||'0.152%'}))},
+  lunar:     {cat:'Lunar Key',   cls:'b-lunar',   tpct:'11%',  items:[{name:'Lunar Key',qty:'1',pct:'100%'}]},
+};
+
+// extreme base set (reused across ER/ED/FP)
+const exBase = [G.cfE1,G.cfE2,G.cfE3,G.pcBasic,G.gold100,G.lunar,G.recEx10,G.recEx5,G.recExCraft,G.refE,G.gearEx,G.matEx,G.matEx2,G.compEx];
+
+// ── zone data ─────────────────────────────────────────────────
+const ZONES = {
+  vildera: {
+    panels:[
+      {key:'arena',    label:'Virelda Arena',    cls:'v', data:[G.gold100,G.gold50,G.matBasic,G.compBasic,G.cfBasic,G.pcBasic,G.foodArena,G.pot25,G.gearVildera]},
+      {key:'caves',    label:'Virelda Caves',    cls:'v', data:[G.gold100,G.gold50,G.matBasic,G.compBasic,G.cfBasic,G.pcBasic,G.foodBasic,G.pot25,G.gearVildera]},
+      {key:'outskirts',label:'Virelda Outskirts',cls:'v', data:[G.gold100,G.gold50,G.matBasic,G.compBasic,G.cfBasic,G.pcBasic,G.foodBasic,G.pot25,G.gearVildera]},
+    ]
+  },
+  eastern: {
+    panels:[
+      {key:'normal', label:'Normal',  cls:'n', data:[G.gold100,G.gold50,G.matBasic,G.compBasic,G.cfBasic,G.pcBasic,G.foodBasic,G.pot25,G.gearERN,G.refN]},
+      {key:'hard',   label:'Hard',    cls:'h', data:[G.cfH1_20,G.cfH2_20,G.cfH3_20,G.pcHard,G.pot20,G.gold100,G.recHard,G.recHardCraft,G.matHard,G.compHard,G.refH,G.gearHard]},
+      {key:'extreme',label:'Extreme', cls:'e', data:exBase},
+    ]
+  },
+  everdune: {
+    panels:[
+      {key:'normal', label:'Normal',  cls:'n', data:[G.gold100,G.gold75a,G.matBasic,G.compED60,G.cfBasic,G.pcBasic,G.foodBasic,G.pot25,G.gearEDN,G.refN]},
+      {key:'hard',   label:'Hard',    cls:'h', data:[G.cfED_H1,G.cfED_H2,G.pcBasic,G.pot25,G.gold100,G.gold75b,G.recHardED,G.recHardCraftED,G.matHardED,G.compHardED,G.refH,G.gearHard]},
+      {key:'extreme',label:'Extreme', cls:'e', data:exBase},
+    ]
+  },
+  farpoint: {
+    panels:[
+      {key:'normal', label:'Normal',  cls:'n', data:[G.gold100,G.gold100b,G.matBasic,G.compFP75,G.cfBasic,G.pcBasic,G.foodBasic,G.pot25,G.gearFPN,G.refN]},
+      {key:'hard',   label:'Hard',    cls:'h', data:[G.cfH1_20,G.cfFPH2,G.cfFPH3,G.pcFPH,G.pot20,G.gold100,G.recHardFP,G.recHardCraftFP,G.matHardFP,G.compHardFP,G.refH,G.gearHard]},
+      {key:'extreme',label:'Extreme', cls:'e', data:exBase},
+    ]
+  },
+  mob: {
+    panels:[
+      {key:'normal', label:'Normal', cls:'n',
+        note:'Rare mob drop chance: 0.001% overall. Each accessory has an equal share.',
+        data:[{cat:'Accessories',cls:'b-gear',tpct:'0.001%',items:[{name:'Challenger Buckle'},{name:'Hellion Coil'},{name:'Nether Strap'},{name:'Twin Peaks Band'},{name:'Champion Buckle'},{name:'Demon Coil'},{name:'Reaper Pendant'},{name:'Skull Strap'},{name:'Cranial Strap'},{name:'Eclipse Belt'},{name:'Canyon Band'},{name:'Nebula Belt'},{name:'Archfiend Coil'}].map(i=>({...i,qty:'1',pct:'0.000077%'}))}]},
+      {key:'hard',   label:'Hard',   cls:'h',
+        note:'Rare mob drop chance: 0.001% overall.',
+        data:[{cat:'Accessories',cls:'b-gear',tpct:'0.001%',items:[{name:'Cosmic Belt'},{name:"Orion's Belt"},{name:'Wraith Pendant'},{name:'Chieftain Charm'},{name:'Wisp Circlet'},{name:'Ivory Binder'},{name:'Ares Chain'},{name:'Carnelian Locket'},{name:'Primal Charm'},{name:'Rosetta Locket'},{name:'Tribal Charm'},{name:'Nebula Belt'},{name:'Archfiend Coil'}].map(i=>({...i,qty:'1',pct:'0.000091%'}))}]},
+      {key:'extreme',label:'Extreme',cls:'e',
+        note:'Rare mob drop chance: 0.001% overall.',
+        data:[{cat:'Accessories',cls:'b-gear',tpct:'0.001%',items:[{name:'Taurus Chain'},{name:'Veil Circlet'},{name:'Virgo Chain'},{name:'Leo Chain'},{name:'Arcane Circlet'},{name:'Spectre Pendant'},{name:'Scarlet Locket'},{name:'Argent Artefact'},{name:'Mithral Artefact'},{name:'Ruffle Bow'},{name:'Cardinal Locket'},{name:'Diamant Artefact'},{name:'Midnight Ring'}].map(i=>({...i,qty:'1',pct:'0.000077%'}))}]},
+    ]
+  },
+  raid: {
+    panels:[
+      {key:'spectra', label:'Spectra', cls:'r',
+        data:[
+          {cat:'Essence',     cls:'b-essence', tpct:'100%', items:[{name:'Spectral Essence',qty:'5',pct:'70%'},{name:'Spectral Essence',qty:'7',pct:'25%'},{name:'Spectral Essence',qty:'10',pct:'5%'}]},
+          {cat:'Gear Recipes',cls:'b-recipe',  tpct:'20%',  items:[{name:'Necrotic Warrior Crown'},{name:'Necrotic Warrior Boots'},{name:'Necrotic Warrior Plate'},{name:'Revenant Priest Hood'},{name:'Revenant Priest Robes'},{name:'Revenant Priest Cloak'},{name:'Soulbinder'},{name:'Oathmourne'},{name:'Gravewhisper'}].map(i=>({...i,qty:'1',pct:'2.222%'}))},
+          {cat:'Bonus',       cls:'b-bonus',   tpct:'25%',  items:[{name:'Unbound Data Module',qty:'1',pct:'3.125%'},{name:'Minor Tome of Insight',qty:'1',pct:'2.083%'},{name:'Standard Tome of Insight',qty:'1',pct:'1.042%'},{name:'Soul Soup',qty:'1',pct:'5.208%'},{name:'Gold',qty:'50',pct:'4.167%'},{name:'Gold',qty:'75',pct:'3.125%'},{name:'Health Flask',qty:'1',pct:'2.604%'},{name:"Phantom's Elixir",qty:'1',pct:'1.563%'},{name:'Speed Stim',qty:'1',pct:'2.083%'}]},
+          {cat:'Gear',        cls:'b-gear',    tpct:'20%',  items:[{name:'Soulbinder',qty:'1',pct:'0.969%'},{name:'Oathmourne',qty:'1',pct:'0.969%'},{name:'Gravewhisper',qty:'1',pct:'0.969%'},{name:'Necrotic Belt',qty:'1',pct:'1.709%'},{name:'Wraith Binding',qty:'1',pct:'1.709%'},{name:'Ruinchain',qty:'1',pct:'1.709%'},{name:"Spectra's Amulet",qty:'1',pct:'1.709%'},{name:'Ring of Death',qty:'1',pct:'1.709%'},{name:'Ring of Life',qty:'1',pct:'1.709%'},{name:'Necrotic Warrior Crown',qty:'1',pct:'1.140%'},{name:'Necrotic Warrior Boots',qty:'1',pct:'1.140%'},{name:'Necrotic Warrior Plate',qty:'1',pct:'1.140%'},{name:'Revenant Priest Hood',qty:'1',pct:'1.140%'},{name:'Revenant Priest Robes',qty:'1',pct:'1.140%'},{name:'Revenant Priest Cloak',qty:'1',pct:'1.140%'}]},
+          {cat:'Material',    cls:'b-mat',     tpct:'40%',  items:[{name:'Shattered Hilt',qty:'1',pct:'6.015%'},{name:'Necrotic Steel',qty:'8',pct:'12.632%'},{name:'Necrotic Steel',qty:'12',pct:'3.910%'},{name:'Necrotic Steel',qty:'16',pct:'2.406%'},{name:'Revenant Cloth',qty:'8',pct:'10.526%'},{name:'Revenant Cloth',qty:'13',pct:'3.008%'},{name:'Revenant Cloth',qty:'18',pct:'1.504%'}]},
+          {cat:'Upgrade',     cls:'b-upgrade', tpct:'50%',  items:[{name:'Epic Living Essence',qty:'10',pct:'3.401%'},{name:'Epic Crystal Geode',qty:'7',pct:'2.721%'},{name:'Refined Core Residue',qty:'20',pct:'2.721%'},{name:'Rare Living Essence',qty:'24',pct:'4.082%'},{name:'Rare Crystal Geode',qty:'18',pct:'4.762%'},{name:'Fine Core Residue',qty:'27',pct:'4.762%'},{name:'Rare Weapon Power Core',qty:'15',pct:'3.401%'},{name:'Rare Ability Power Core',qty:'15',pct:'3.401%'},{name:'Epic Ability Power Core',qty:'10',pct:'2.041%'},{name:'Epic Weapon Power Core',qty:'10',pct:'2.041%'},{name:'Epic Living Essence',qty:'15',pct:'1.701%'},{name:'Epic Crystal Geode',qty:'11',pct:'1.361%'},{name:'Refined Core Residue',qty:'30',pct:'1.361%'},{name:'Rare Living Essence',qty:'38',pct:'2.041%'},{name:'Rare Crystal Geode',qty:'27',pct:'2.381%'},{name:'Fine Core Residue',qty:'30',pct:'2.381%'},{name:'Rare Weapon Power Core',qty:'23',pct:'1.701%'},{name:'Rare Ability Power Core',qty:'23',pct:'1.701%'},{name:'Epic Weapon Power Core',qty:'17',pct:'1.020%'},{name:'Epic Ability Power Core',qty:'17',pct:'1.020%'}]},
+        ]
+      }
+    ]
+  },
+  limited: {
+    panels:[
+      {key:'limited', label:'Everdune Extreme', cls:'r',
+        note:'This item only drops in Everdune Extreme.',
+        data:[{cat:'Gear',cls:'b-gear',tpct:'1%',items:[{name:'Gecko Backpack',qty:'1',pct:'100%'}]}]
+      }
+    ]
+  }
+};
+
+// ── render ────────────────────────────────────────────────────
+const content = document.getElementById('content');
+Object.entries(ZONES).forEach(([id, z], zi) => {
+  const el = document.createElement('div');
+  el.className = 'zone-panel' + (zi===0 ? ' active' : '');
+  el.id = 'zone-'+id;
+  el.innerHTML = zone(id, z.panels);
+  content.appendChild(el);
+});
+
+// ── tab switching ─────────────────────────────────────────────
+document.getElementById('zoneTabs').addEventListener('click', e => {
+  const t = e.target.closest('.zone-tab');
+  if (!t) return;
+  document.querySelectorAll('.zone-tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.zone-panel').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById('zone-'+t.dataset.zone)?.classList.add('active');
+});
+content.addEventListener('click', e => {
+  const t = e.target.closest('.diff-tab');
+  if (!t) return;
+  const {zone, diff} = t.dataset;
+  t.closest('.diff-bar').querySelectorAll('.diff-tab').forEach(x=>x.classList.remove('active'));
+  document.getElementById('zone-'+zone)?.querySelectorAll('.diff-panel').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById(zone+'-'+diff)?.classList.add('active');
+});
+</script>
+</body>
+</html>
